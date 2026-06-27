@@ -4,7 +4,7 @@
 
 ## 🎥 Demo
 
-[![Watch the demo](https://img.shields.io/badge/▶-Watch%20Demo%20Video-blue?style=for-the-badge)](PASTE_YOUR_GOOGLE_DRIVE_LINK_HERE)
+[![Watch the demo](https://img.shields.io/badge/▶-Watch%20Demo%20Video-blue?style=for-the-badge)](https://drive.google.com/file/d/1mgQrWwj1uzi9-ReGSGTrKS4nuuf44ybN/view?usp=sharing)
 
 > Click the badge above to watch the full demo (hosted on Google Drive).
 
