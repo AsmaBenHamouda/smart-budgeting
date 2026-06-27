@@ -1,0 +1,177 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+{% block title %}Liste des Catégories{% endblock %}
+{% block vendor_js %}
+  {{ block.super }}
+  <script src="{% static 'vendor/libs/masonry/masonry.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block content %}
+<style>
+.progress-bar-danger {
+    background-color: #d9534f !important;
+}
+.progress-bar-warning {
+    background-color: #f0ad4e !important;
+}
+.progress-bar-success {
+    background-color: #5cb85c !important;
+}
+.deficit-badge {
+    background-color: #d9534f;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.surplus-badge {
+    background-color: #5cb85c;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-tags"></i> Gestion des Catégories</h2>
+            <a href="{% url 'categorieApp:ajouter_categorie' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Ajouter une catégorie
+            </a>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary">{{ categories.count }}</h3>
+                        <p class="text-muted mb-0">Total catégories</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-info">{{ categories_globales.count }}</h3>
+                        <p class="text-muted mb-0">Catégories globales</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-success">{{ mes_categories.count }}</h3>
+                        <p class="text-muted mb-0">Mes catégories</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des catégories avec détails financiers -->
+        {% if categories_enrichies %}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Toutes les catégories avec détails financiers</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th class="text-end">Revenus</th>
+                                <th class="text-end">Dépenses</th>
+                                <th class="text-end">Solde</th>
+                                <th>Créateur</th>
+                                <th>Date création</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in categories_enrichies %}
+                            <tr {% if item.est_en_deficit %}class="table-danger"{% endif %}>
+                                <td>
+                                    <strong>{{ item.categorie.nom }}</strong>
+                                    {% if item.est_en_deficit %}
+                                        <span class="badge bg-danger ms-2">⚠️ Déficit</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.categorie.description|truncatewords:10|default:"—" }}</td>
+                                <td>
+                                    {% if item.categorie.est_globale %}
+                                        <span class="badge badge-globale">
+                                            <i class="fas fa-globe"></i> Globale
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-personnelle">
+                                            <i class="fas fa-user"></i> Personnelle
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-success fw-bold">{{ item.total_revenus|floatformat:2 }} DT</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-danger fw-bold">{{ item.total_depenses|floatformat:2 }} DT</span>
+                                </td>
+                                <td class="text-end">
+                                    {% if item.solde >= 0 %}
+                                        <span class="surplus-badge">+{{ item.solde|floatformat:2 }} DT</span>
+                                    {% else %}
+                                        <span class="deficit-badge">{{ item.solde|floatformat:2 }} DT</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.categorie.utilisateur %}
+                                        <i class="fas fa-user-circle"></i> {{ item.categorie.utilisateur.username }}
+                                    {% else %}
+                                        <i class="fas fa-globe"></i> Système
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.categorie.date_creation|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'categorieApp:detail_categorie' item.categorie.pk %}" 
+                                           class="btn btn-sm btn-info" 
+                                           title="Voir les détails">
+                                            <i class="fas fa-eye"></i> <span class="btn-text">Voir</span>
+                                        </a>
+                                        {% if user.is_staff or item.categorie.utilisateur == user and not item.categorie.est_globale %}
+                                        <a href="{% url 'categorieApp:modifier_categorie' item.categorie.pk %}" 
+                                           class="btn btn-sm btn-warning" 
+                                           title="Modifier">
+                                            <i class="fas fa-edit"></i> <span class="btn-text">Modifier</span>
+                                        </a>
+                                        {% endif %}
+                                        {% if user.is_staff or item.categorie.utilisateur == user and not item.categorie.est_globale %}
+                                        <a href="{% url 'categorieApp:supprimer_categorie' item.categorie.pk %}" 
+                                           class="btn btn-sm btn-danger" 
+                                           title="Supprimer">
+                                            <i class="fas fa-trash"></i> <span class="btn-text">Supprimer</span>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Aucune catégorie disponible. 
+            <a href="{% url 'categorieApp:ajouter_categorie' %}" class="alert-link">Créez-en une maintenant !</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

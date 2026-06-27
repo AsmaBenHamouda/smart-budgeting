@@ -1,0 +1,171 @@
+<!-- templates/auth_login_basic.html -->
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Login - Pages{% endblock %}
+
+{% block page_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'vendor/css/pages/page-auth.css' %}">
+  <style>
+    /* Style personnalisé pour le message d'erreur de compte inactif */
+    .alert-error.account-inactive {
+      background-color: #ff4d4f;
+      border-color: #ff4d4f;
+      color: white;
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+    }
+    
+    .alert-error.account-inactive .alert-heading {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .alert-error i {
+      font-size: 20px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+  </style>
+{% endblock page_css %}
+
+{% block content %}
+  <div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner">
+        <div class="card px-sm-6 px-0">
+          <div class="card-body">
+            <!-- Logo -->
+            <div class="app-brand justify-content-center mb-6">
+              <a href="{% url 'revenueApp:revenue_list' %}" class="app-brand-link gap-2">
+                <span class="app-brand-logo demo">{% include 'partials/logo.html' %}</span>
+                <span class="app-brand-text demo text-heading fw-bold">{% get_theme_variables 'template_name' %}</span>
+              </a>
+            </div>
+
+            <h4 class="mb-1">Bienvenue ! 👋</h4>
+            <p class="mb-6">Connectez-vous à votre compte</p>
+
+            <!-- Messages -->
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} {% if 'confirmé' in message|lower or 'inactif' in message|lower %}account-inactive{% endif %} alert-dismissible" role="alert">
+                  <strong>
+                    {% if message.tags == 'error' %}
+                      <i class="bx bx-error-circle"></i>
+                    {% elif message.tags == 'success' %}
+                      <i class="bx bx-check-circle"></i>
+                    {% elif message.tags == 'warning' %}
+                      <i class="bx bx-info-circle"></i>
+                    {% endif %}
+                  </strong>
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+
+            <form id="formAuthentication" class="mb-6" method="post">
+              {% csrf_token %}
+              
+              <!-- Email -->
+              <div class="mb-6">
+                <label for="id_email" class="form-label">Email</label>
+                <input type="email" 
+                       class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                       id="id_email" 
+                       name="email" 
+                       placeholder="Entrez votre email"
+                       value="{{ form.email.value|default:'' }}"
+                       autofocus
+                       required>
+                {% if form.email.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.email.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Mot de passe -->
+              <div class="mb-6 form-password-toggle">
+                <label class="form-label" for="id_password">Mot de passe</label>
+                <div class="input-group input-group-merge">
+                  <input type="password" 
+                         class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                         id="id_password" 
+                         name="password" 
+                         placeholder="············"
+                         required>
+                  <span class="input-group-text cursor-pointer">
+                    <i class="icon-base bx bx-hide"></i>
+                  </span>
+                </div>
+                {% if form.password.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.password.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Remember me -->
+              <div class="mb-6 d-flex justify-content-between align-items-center">
+                <div class="form-check mb-0">
+                  <input class="form-check-input" type="checkbox" id="id_remember_me" name="remember_me">
+                  <label class="form-check-label" for="id_remember_me">Se souvenir de moi</label>
+                </div>
+                <a href="{% url 'auth-forgot-password-basic' %}">
+                  <small>Mot de passe oublié ?</small>
+                </a>
+              </div>
+
+              <button class="btn btn-primary d-grid w-100" type="submit">Connexion</button>
+            </form>
+
+            <p class="text-center">
+              <span>Nouveau sur la plateforme ?</span>
+              <a href="{% url 'auth-register-basic' %}">
+                <span>Créer un compte</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_js %}
+  {{ block.super }}
+  <script>
+    // Script pour afficher/masquer le mot de passe
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.form-password-toggle .input-group-text').forEach(function(element) {
+        element.addEventListener('click', function() {
+          const inputGroup = this.closest('.input-group');
+          const input = inputGroup.querySelector('input');
+          const icon = this.querySelector('i');
+          
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bx-hide');
+            icon.classList.add('bx-show');
+          } else {
+            input.type = 'password';
+            icon.classList.remove('bx-show');
+            icon.classList.add('bx-hide');
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}

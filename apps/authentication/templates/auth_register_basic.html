@@ -1,0 +1,203 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Inscription - Pages{% endblock %}
+
+{% block page_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static  'vendor/css/pages/page-auth.css' %}">
+{% endblock page_css %}
+
+{% block content %}
+  <div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner">
+        <!-- Register Card -->
+        <div class="card px-sm-6 px-0">
+          <div class="card-body">
+
+            <!-- Logo -->
+            <div class="app-brand justify-content-center mb-6">
+              <a href="{% url 'revenueApp:revenue_list' %}" class="app-brand-link gap-2">
+                <span class="app-brand-logo demo">{% include 'partials/logo.html' %}</span>
+                <span class="app-brand-text demo text-heading fw-bold">{% get_theme_variables 'template_name' %}</span>
+              </a>
+            </div>
+            <!-- /Logo -->
+
+            <h4 class="mb-1">L’aventure commence ici 🚀</h4>
+            <p class="mb-6">Gérez votre application facilement et efficacement !</p>
+
+            <!-- Messages d'erreur globaux -->
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+
+            <form id="formAuthentication" class="mb-6" method="post">
+              {% csrf_token %}
+              
+              <!-- Prénom -->
+              <div class="mb-6">
+                <label for="id_firstname" class="form-label">Prénom</label>
+                <input type="text" 
+                       class="form-control {% if form.firstname.errors %}is-invalid{% endif %}" 
+                       id="id_firstname" 
+                       name="firstname" 
+                       placeholder="Entrez votre prénom"
+                       value="{{ form.firstname.value|default:'' }}"
+                       autofocus
+                       required>
+                {% if form.firstname.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.firstname.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Nom -->
+              <div class="mb-6">
+                <label for="id_lastname" class="form-label">Nom</label>
+                <input type="text" 
+                       class="form-control {% if form.lastname.errors %}is-invalid{% endif %}" 
+                       id="id_lastname" 
+                       name="lastname" 
+                       placeholder="Entrez votre nom"
+                       value="{{ form.lastname.value|default:'' }}"
+                       required>
+                {% if form.lastname.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.lastname.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Email -->
+              <div class="mb-6">
+                <label for="id_email" class="form-label">Adresse email</label>
+                <input type="email" 
+                       class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                       id="id_email" 
+                       name="email" 
+                       placeholder="Entrez votre email"
+                       value="{{ form.email.value|default:'' }}"
+                       required>
+                {% if form.email.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.email.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Mot de passe -->
+              <div class="mb-6 form-password-toggle">
+                <label class="form-label" for="id_password">Mot de passe</label>
+                <div class="input-group input-group-merge">
+                  <input type="password" 
+                         class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                         id="id_password" 
+                         name="password" 
+                         placeholder="············"
+                         required>
+                  <span class="input-group-text cursor-pointer">
+                    <i class="icon-base bx bx-hide"></i>
+                  </span>
+                </div>
+                {% if form.password.errors %}
+                  <div class="text-danger mt-1">
+                    {% for error in form.password.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <small class="text-muted">Le mot de passe doit contenir au moins 8 caractères.</small>
+              </div>
+
+              <!-- Confirmer mot de passe -->
+              <div class="mb-6 form-password-toggle">
+                <label class="form-label" for="id_password_confirm">Confirmer le mot de passe</label>
+                <div class="input-group input-group-merge">
+                  <input type="password" 
+                         class="form-control {% if form.password_confirm.errors %}is-invalid{% endif %}" 
+                         id="id_password_confirm" 
+                         name="password_confirm" 
+                         placeholder="············"
+                         required>
+                  <span class="input-group-text cursor-pointer">
+                    <i class="icon-base bx bx-hide"></i>
+                  </span>
+                </div>
+                {% if form.password_confirm.errors %}
+                  <div class="text-danger mt-1">
+                    {% for error in form.password_confirm.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Erreurs globales -->
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                  {% for error in form.non_field_errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <button class="btn btn-primary d-grid w-100" type="submit">
+                S’inscrire
+              </button>
+            </form>
+
+            <p class="text-center">
+              <span>Vous avez déjà un compte ?</span>
+              <a href="{% url 'auth-login-basic' %}">
+                <span>Se connecter</span>
+              </a>
+            </p>
+          </div>
+        </div>
+        <!-- Register Card -->
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_js %}
+  {{ block.super }}
+  <script>
+    // Script pour afficher/masquer le mot de passe
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.form-password-toggle .input-group-text').forEach(function(element) {
+        element.addEventListener('click', function() {
+          const inputGroup = this.closest('.input-group');
+          const input = inputGroup.querySelector('input');
+          const icon = this.querySelector('i');
+          
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bx-hide');
+            icon.classList.add('bx-show');
+          } else {
+            input.type = 'password';
+            icon.classList.remove('bx-show');
+            icon.classList.add('bx-hide');
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}
