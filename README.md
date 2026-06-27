@@ -128,6 +128,3 @@ Sprint 3: AI features (Chatbot with Groq, Recommendations with GitHub Models)
 📄 Sprint 3 Backlog - AI
 📄 Story Tests
 
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
